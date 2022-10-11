@@ -1,0 +1,7 @@
+test/
+func/lhashhpall.c
+func/lhashhprint.c
+*.o
+make
+*.a
+*.txt
