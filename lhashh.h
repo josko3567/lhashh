@@ -136,7 +136,6 @@ typedef struct {
 		struct lhashhtable_keyent *head; /* key linked list head node 
 		... updated every time a new key is added */
 		struct lhashhtable_keyent *node; /* Free use node for lhashhfor( ... ) */
-		struct lhashhtable_keyent *nodenext; /* Free use node for lhashhfor( ... ) */
 	} key;
 
         struct {
