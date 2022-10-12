@@ -588,7 +588,7 @@ int lhashhin(
 			 * the same hash value. We set it's
 			 * chunk->next to point to chunk.
 			 */
-			chunkeq = &table->chunk[hash];
+			chunkeq = NULL;
 			
 			while( chunk->value != NULL ) {
 				
@@ -622,7 +622,7 @@ int lhashhin(
 
 				if( chunk->key->hash == hashcpy ) {
 				
-					chunkeq = &table->chunk[hash];
+					chunkeq = chunk;
 					
 				} 
 				
@@ -646,7 +646,21 @@ int lhashhin(
 				
 			}
 			
-			chunkeq->next = chunk;
+                        /* Handle same hashes. */
+                        if( chunkeq != NULL ) {
+
+                                /* Goto end of same hash list. */
+                                while( chunkeq->next != NULL )
+                                        chunkeq = chunkeq->next;
+                                
+                                /* Insert this chunk at the end */
+                                chunkeq->next = chunk;
+
+                        } else {
+
+                                chunk->next = NULL;
+
+                        }
 			
 		} else if( table->colhndl == LHASHH_TCH_PROBE_QUAD ) {
 			
@@ -655,7 +669,7 @@ int lhashhin(
 			 * extra check for no space and the
 			 * hash formula is different.
 			 */
-			chunkeq = &table->chunk[hash];
+			chunkeq = NULL;
 			
 			while( chunk->value != NULL ) {
 				
@@ -688,7 +702,7 @@ int lhashhin(
 				
 				if( chunk->key->hash == hashcpy ) {
 				
-					chunkeq = &table->chunk[hash];
+					chunkeq = chunk;
 					
 				} 
 				
@@ -699,7 +713,21 @@ int lhashhin(
 				
 			}
 			
-			chunkeq->next = chunk;
+			/* Handle same hashes. */
+                        if( chunkeq != NULL ) {
+
+                                /* Goto end of same hash list. */
+                                while( chunkeq->next != NULL )
+                                        chunkeq = chunkeq->next;
+                                
+                                /* Insert this chunk at the end */
+                                chunkeq->next = chunk;
+
+                        } else {
+
+                                chunk->next = NULL;
+                                
+                        }
 			
 			
 		} else {

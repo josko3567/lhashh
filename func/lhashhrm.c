@@ -65,6 +65,7 @@ int lhashhrm(
         struct lhashhtable_chunk *chunk     = &table->chunk[hash];
         struct lhashhtable_chunk *chunkprev = NULL;
         struct lhashhtable_chunk *chunkbuff = NULL;
+        struct lhashhtable_chunk *chunkbuffprev = NULL;
 
         /*
 	 * Search table for hash with same
@@ -245,7 +246,59 @@ int lhashhrm(
 
                 case LHASHH_TCH_PROBE_LIN:
                 case LHASHH_TCH_PROBE_QUAD:
+                /*
+                 * To make probing work after removing a chunk,
+                 * we have to move the last chunk with the same
+                 * hash to the spot of the deleted one. If we are
+                 * deleting the last chunk free it's memory and
+                 * memset it to 0. Only possible due to reusing
+                 * of chunk->next for probing aswell.
+                 */
+                
+                /* Goto end of list 
+                   Find last chunk and the one before it.*/
+                chunkbuff = chunk;
+                while( chunkbuff->next != NULL ) {
+                        chunkbuffprev = chunkbuff; /* Pre last */
+                        chunkbuff = chunkbuff->next; /* Last */
+                }
+                /* Check if current chunk is at the end */
+                if( chunkbuff == chunk ) {
 
+                        /* If so free space and memset 0 */
+                        if( chunkprev != NULL ) 
+                                chunkprev->next = chunk->next;
+
+                        if( chunk->value != NULL )
+                                free( chunk->value );
+                        
+                        memset(
+                                chunk,
+                                0,
+                                sizeof(struct lhashhtable_chunk)
+                        );
+
+                /* Otherwise swap last and deleted chunk */
+                } else {
+
+                        if( chunk->value != NULL )
+                                free( chunk->value );
+                        
+                        chunk->value = chunkbuff->value;
+                        chunk->key   = chunkbuff->key;
+                        
+                        /* Change pointer of chunk before
+                        last one */
+                        if( chunkbuffprev != NULL )
+                                chunkbuffprev->next = chunkbuff->next;
+
+                        memset(
+                                chunkbuff,
+                                0,
+                                sizeof(struct lhashhtable_chunk)
+                        );
+
+                }
                 break;
                 
 
